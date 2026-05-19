@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BuildTrue — Hidden Cost Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HOME PAGE ═══════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero-eyebrow">⚠ CONSTRUCTION COST TRANSPARENCY</div>
+  <h1 class="hero" style="font-family:'Bebas Neue';font-size:clamp(52px,10vw,110px);line-height:.92;letter-spacing:2px;animation:fadeUp .6s .1s ease both;position:relative;z-index:1">
+    WHAT YOUR<br><span style="color:var(--gold)">CONTRACTOR</span><br>NEVER TELLS YOU
+  </h1>
+  <p class="hero-sub">Discover the real cost of building your dream home — including every hidden expense that contractors conveniently leave out of their initial quote.</p>
+
+  <div class="hero-problem">
+    <h3>⚡ THE HIDDEN COST PROBLEM</h3>
+    <p>Contractors quote only the <strong style="color:#E8E9F0">basic visible construction cost</strong>. The actual cost includes flooring labour, electrical wiring, paint prep, plumbing, waterproofing, transport, wastage and dozens more — which can <strong style="color:#F87171">inflate your bill by 35–60%</strong>. Our system exposes every rupee.</p>
+  </div>
+
+  <div class="hero-steps">
+    <div class="hero-step"><div class="hero-step-num">01</div><div class="hero-step-label">Enter House Dimensions</div></div>
+    <div class="hero-step"><div class="hero-step-num">02</div><div class="hero-step-label">Explore 5 Hidden Cost Modules</div></div>
+    <div class="hero-step"><div class="hero-step-num">03</div><div class="hero-step-label">View Full Dashboard & Charts</div></div>
+  </div>
+
+  <button class="cta-btn" onclick="startApp()">START COST ANALYSIS →</button>
+</div>
+
+<!-- ═══════════════════════════════ SHELL (nav + pages) ═══════════════════ -->
+<div id="app-shell" class="hidden">
+  <nav>
+    <div class="nav-logo">BUILDTRUE</div>
+    <button class="nav-tab active" data-page="house" onclick="switchPage('house',this)">House Details</button>
+    <button class="nav-tab" data-page="modules" onclick="switchPage('modules',this)">Hidden Costs</button>
+    <button class="nav-tab" data-page="dashboard" onclick="switchPage('dashboard',this)">Dashboard</button>
+    <button class="nav-tab nav-home" onclick="goHome()">← Home</button>
+  </nav>
+
+  <!-- ─── HOUSE DETAILS ─── -->
+  <div id="page-house" class="page active">
+    <div class="inner animate-in">
+      <div class="page-title">HOUSE <span>DETAILS</span></div>
+      <p class="page-sub">Enter your house dimensions to calculate the base visible construction cost.</p>
+
+      <div class="section-gap">
+        <div class="card">
+          <div class="card-title">🏗 Dimensions & Layout</div>
+          <div class="card-sub">Provide accurate measurements for precise cost estimation</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Length (ft)</label><input type="number" id="h-length" placeholder="e.g. 40" min="0" oninput="calcHouse()"></div>
+            <div class="field"><label>Breadth (ft)</label><input type="number" id="h-breadth" placeholder="e.g. 30" min="0" oninput="calcHouse()"></div>
+            <div class="field"><label>Number of Rooms</label><input type="number" id="h-rooms" placeholder="e.g. 3" min="0" oninput="calcHouse()"></div>
+            <div class="field"><label>Number of Bathrooms</label><input type="number" id="h-baths" placeholder="e.g. 2" min="0" oninput="calcHouse()"></div>
+            <div class="field"><label>Floor Height (ft, optional)</label><input type="number" id="h-height" placeholder="e.g. 10" min="0" oninput="calcHouse()"></div>
+            <div class="field"><label>Number of Floors</label><input type="number" id="h-floors" placeholder="e.g. 1" min="1" value="1" oninput="calcHouse()"></div>
+          </div>
+        </div>
+
+        <div id="house-result" class="card hidden animate-in">
+          <div class="card-title">📐 Area Calculation</div>
+          <div class="grid-3" style="gap:16px;margin-bottom:0">
+            <div class="stat-box teal">
+              <div class="stat-label">Total Floor Area</div>
+              <div class="stat-val" id="r-area">—</div>
+              <div class="stat-sub">sq.ft</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Rooms + Baths</div>
+              <div class="stat-val" id="r-spaces">—</div>
+              <div class="stat-sub">total spaces</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Wall Area (est.)</div>
+              <div class="stat-val" id="r-wall">—</div>
+              <div class="stat-sub">sq.ft</div>
+            </div>
+          </div>
+          <div class="result-box">
+            <div class="result-label">⚡ VISIBLE CONTRACTOR QUOTE (Basic Structure Only)</div>
+            <div class="result-value" id="r-visible">—</div>
+            <div class="result-detail" id="r-detail">Based on ₹1,800/sq.ft — This is what most contractors quote initially</div>
+          </div>
+          <div class="alert-banner">
+            <strong>⚠ Warning:</strong> This is only your <strong>base structure cost</strong>. Flooring, electrical, painting, plumbing, roofing and dozens of hidden charges are NOT included. Continue to reveal the actual cost.
+          </div>
+          <button class="calc-btn" onclick="switchPage('modules',document.querySelector('[data-page=modules]'))">REVEAL HIDDEN COSTS →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HIDDEN COST MODULES ─── -->
+  <div id="page-modules" class="page hidden">
+    <div class="inner animate-in">
+      <div class="page-title">HIDDEN <span>COST MODULES</span></div>
+      <p class="page-sub">Explore each category to reveal costs contractors hide from your initial quote.</p>
+
+      <div class="mod-tabs">
+        <button class="mod-tab active" onclick="switchMod('flooring',this)">🪟 Flooring</button>
+        <button class="mod-tab" onclick="switchMod('electrical',this)">⚡ Electrical</button>
+        <button class="mod-tab" onclick="switchMod('painting',this)">🎨 Painting</button>
+        <button class="mod-tab" onclick="switchMod('plumbing',this)">🔧 Plumbing</button>
+        <button class="mod-tab" onclick="switchMod('roofing',this)">🏠 Roofing</button>
+      </div>
+
+      <!-- FLOORING -->
+      <div id="mod-flooring" class="module-panel active">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">🪟</div>
+          <div class="card-title">Flooring / Tiles</div>
+          <div class="card-sub">Per sq.ft costs — tile wastage (8%) &amp; cutting charges are auto-calculated</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Tile Cost (₹/sq.ft)</label><input type="number" id="f-tile" value="65" oninput="calcFlooring()"></div>
+            <div class="field"><label>Labour Charge (₹/sq.ft)</label><input type="number" id="f-labour" value="25" oninput="calcFlooring()"></div>
+            <div class="field"><label>Polishing Charge (₹/sq.ft)</label><input type="number" id="f-polish" value="15" oninput="calcFlooring()"></div>
+            <div class="field"><label>Adhesive/Cement (₹/sq.ft)</label><input type="number" id="f-adhesive" value="12" oninput="calcFlooring()"></div>
+            <div class="field"><label>Transportation (₹ flat)</label><input type="number" id="f-transport" value="5000" oninput="calcFlooring()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cost Breakdown</div>
+          <div class="legends">
+            <div class="legend-row"><div class="dot" style="background:var(--teal)"></div>Visible Cost</div>
+            <div class="legend-row"><div class="dot" style="background:var(--red)"></div>Hidden Cost</div>
+          </div>
+          <div class="breakdown" id="flooring-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- ELECTRICAL -->
+      <div id="mod-electrical" class="module-panel">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">⚡</div>
+          <div class="card-title">Electrical</div>
+          <div class="card-sub" id="elec-sub">Switchboard count &amp; wall-cutting charges are auto-calculated from room count</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Wiring Cost (₹/sq.ft)</label><input type="number" id="e-wiring" value="45" oninput="calcElectrical()"></div>
+            <div class="field"><label>Extra Switches/Sockets (₹)</label><input type="number" id="e-switches" value="0" placeholder="Additional" oninput="calcElectrical()"></div>
+            <div class="field"><label>Labour Charges (₹/sq.ft)</label><input type="number" id="e-labour" value="35" oninput="calcElectrical()"></div>
+            <div class="field"><label>Conduit Pipes (₹/sq.ft)</label><input type="number" id="e-conduit" value="20" oninput="calcElectrical()"></div>
+            <div class="field"><label>Extra Fittings (₹)</label><input type="number" id="e-fittings" value="0" placeholder="Additional" oninput="calcElectrical()"></div>
+            <div class="field"><label>Transportation (₹ flat)</label><input type="number" id="e-transport" value="4000" oninput="calcElectrical()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cost Breakdown</div>
+          <div class="legends">
+            <div class="legend-row"><div class="dot" style="background:var(--teal)"></div>Visible Cost</div>
+            <div class="legend-row"><div class="dot" style="background:var(--red)"></div>Hidden Cost</div>
+          </div>
+          <div class="breakdown" id="electrical-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- PAINTING -->
+      <div id="mod-painting" class="module-panel">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">🎨</div>
+          <div class="card-title">Painting</div>
+          <div class="card-sub" id="paint-sub">Paint area includes ceiling &amp; walls — sanding/prep charges auto-calculated</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Paint Cost (₹/sq.ft)</label><input type="number" id="p-paint" value="18" oninput="calcPainting()"></div>
+            <div class="field"><label>Primer Cost (₹/sq.ft)</label><input type="number" id="p-primer" value="8" oninput="calcPainting()"></div>
+            <div class="field"><label>Putty Cost (₹/sq.ft)</label><input type="number" id="p-putty" value="12" oninput="calcPainting()"></div>
+            <div class="field"><label>Labour Charge (₹/sq.ft)</label><input type="number" id="p-labour" value="14" oninput="calcPainting()"></div>
+            <div class="field"><label>Scaffolding Charge (₹ flat)</label><input type="number" id="p-scaffold" value="8000" oninput="calcPainting()"></div>
+            <div class="field"><label>Transportation (₹ flat)</label><input type="number" id="p-transport" value="3000" oninput="calcPainting()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cost Breakdown</div>
+          <div class="legends">
+            <div class="legend-row"><div class="dot" style="background:var(--teal)"></div>Visible Cost</div>
+            <div class="legend-row"><div class="dot" style="background:var(--red)"></div>Hidden Cost</div>
+          </div>
+          <div class="breakdown" id="painting-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- PLUMBING -->
+      <div id="mod-plumbing" class="module-panel">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">🔧</div>
+          <div class="card-title">Plumbing</div>
+          <div class="card-sub" id="plumb-sub">Wall-breaking &amp; installation charges auto-calculated per bathroom</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Pipe Cost (₹ total)</label><input type="number" id="pl-pipes" value="25000" oninput="calcPlumbing()"></div>
+            <div class="field"><label>Fittings Cost (₹ total)</label><input type="number" id="pl-fittings" value="15000" oninput="calcPlumbing()"></div>
+            <div class="field"><label>Sealing / Waterproofing (₹)</label><input type="number" id="pl-water" value="8000" oninput="calcPlumbing()"></div>
+            <div class="field"><label>Labour Charges (₹ total)</label><input type="number" id="pl-labour" value="12000" oninput="calcPlumbing()"></div>
+            <div class="field"><label>Drainage Accessories (₹)</label><input type="number" id="pl-drain" value="6000" oninput="calcPlumbing()"></div>
+            <div class="field"><label>Transportation (₹ flat)</label><input type="number" id="pl-transport" value="3500" oninput="calcPlumbing()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cost Breakdown</div>
+          <div class="legends">
+            <div class="legend-row"><div class="dot" style="background:var(--teal)"></div>Visible Cost</div>
+            <div class="legend-row"><div class="dot" style="background:var(--red)"></div>Hidden Cost</div>
+          </div>
+          <div class="breakdown" id="plumbing-breakdown"></div>
+        </div>
+      </div>
+
+      <!-- ROOFING -->
+      <div id="mod-roofing" class="module-panel">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">🏠</div>
+          <div class="card-title">Roofing</div>
+          <div class="card-sub" id="roof-sub">Drainage slope finishing charges auto-calculated from roof area</div>
+          <div class="grid-2" style="gap:16px">
+            <div class="field"><label>Waterproofing (₹/sq.ft)</label><input type="number" id="r-waterproof" value="35" oninput="calcRoofing()"></div>
+            <div class="field"><label>Insulation Cost (₹/sq.ft)</label><input type="number" id="r-insulation" value="20" oninput="calcRoofing()"></div>
+            <div class="field"><label>Labour Charges (₹/sq.ft)</label><input type="number" id="r-labour" value="18" oninput="calcRoofing()"></div>
+            <div class="field"><label>Transportation (₹ flat)</label><input type="number" id="r-transport" value="4500" oninput="calcRoofing()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Cost Breakdown</div>
+          <div class="legends">
+            <div class="legend-row"><div class="dot" style="background:var(--teal)"></div>Visible Cost</div>
+            <div class="legend-row"><div class="dot" style="background:var(--red)"></div>Hidden Cost</div>
+          </div>
+          <div class="breakdown" id="roofing-breakdown"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── DASHBOARD ─── -->
+  <div id="page-dashboard" class="page hidden">
+    <div class="inner animate-in">
+      <div class="page-title">FINAL <span>DASHBOARD</span></div>
+      <p class="page-sub">Your complete construction cost breakdown — visible vs actual.</p>
+
+      <div id="dash-empty" class="alert-banner">
+        ⚠ Please enter your house dimensions on the <strong>House Details</strong> page first, then return here to see your full dashboard.
+      </div>
+
+      <div id="dash-content" class="section-gap hidden">
+        <!-- KPI -->
+        <div class="grid-3" style="gap:16px">
+          <div class="stat-box teal">
+            <div class="stat-label">Contractor Quote</div>
+            <div class="stat-val" id="d-quote">—</div>
+            <div class="stat-sub">Basic visible cost only</div>
+          </div>
+          <div class="stat-box red">
+            <div class="stat-label">Total Hidden Costs</div>
+            <div class="stat-val" id="d-hidden">—</div>
+            <div class="stat-sub">What was never mentioned</div>
+          </div>
+          <div class="stat-box gold">
+            <div class="stat-label">Actual Total Cost</div>
+            <div class="stat-val" id="d-total">—</div>
+            <div class="stat-sub" id="d-pct">—</div>
+          </div>
+        </div>
+
+        <!-- Category Summary -->
+        <div class="card">
+          <div class="card-title">Category-wise Cost Summary</div>
+          <div class="breakdown" id="d-summary"></div>
+          <div style="margin-top:28px" id="d-progress"></div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="grid-2-charts" style="gap:20px">
+          <div class="chart-box">
+            <div class="chart-title">COST DISTRIBUTION</div>
+            <canvas id="chart-pie"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title">CONTRACTOR QUOTE VS ACTUAL</div>
+            <canvas id="chart-compare"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-title">VISIBLE VS HIDDEN — BY CATEGORY</div>
+          <canvas id="chart-bar"></canvas>
+        </div>
+
+        <div class="insight-box">
+          <h3>⚡ KEY INSIGHT</h3>
+          <p id="d-insight">—</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app-shell -->
+
+<script src="script.js">
+</script>
+</body>
+</html>
